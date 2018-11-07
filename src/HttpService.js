@@ -1,7 +1,7 @@
 import {ENVS} from "./utils/enum";
 import {extractGetParams} from "./utils/aux";
 
-export default class HttpService {
+export class HttpService {
 
     static env = ENVS.PRODUCTION;
 
