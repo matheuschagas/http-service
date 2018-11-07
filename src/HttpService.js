@@ -23,7 +23,7 @@ export class HttpService {
             }
         }
         if (apiKey) {
-            let envAux = HttpService.apis[apiKey].find((item)=>{
+            let envAux = HttpService.apis[key].find((item)=>{
                 return item.env === env;
             });
             if(envAux) {
@@ -31,13 +31,13 @@ export class HttpService {
                     ...urlEnv
                 };
             }else {
-                HttpService.apis[apiKey].push(
+                HttpService.apis[key].push(
                     {
                         ...urlEnv
                     });
             }
         } else {
-            HttpService.apis[apiKey] = [
+            HttpService.apis[key] = [
                 {
                     ...urlEnv
                 }
@@ -51,10 +51,14 @@ export class HttpService {
             return item.env === HttpService.env;
         });
         if(env){
-            return env;
+            return env.url;
         }else{
             throw 'URL não encontrada para a API e Env determinados';
         }
+    }
+
+    static createParam(key, value){
+        return {key, value};
     }
 
     static get(endpoint, params = [], apiKey = HttpService.apis[0][0], token = null){
@@ -67,13 +71,20 @@ export class HttpService {
                 if (token !== null) {
                     headers.Authorization = token;
                 }
-                fetch(url, {headers: headers}).then((response) => response.json()).then((responseJson) => {
+                fetch(url, {headers: headers}).then((response) => {
+                    if(response.status !==200){
+                        throw response.status + ': ' + response;
+                    }
+                    console.log(response)
+                    return response.json();
+                }).then(responseJson => {
                     resolve(responseJson);
                 }).catch((error) => {
                     console.log(url, headers);
                     throw error;
                 });
             } catch (e) {
+                console.log(e);
                 reject(e);
             }
         });
@@ -96,7 +107,12 @@ export class HttpService {
                     method: 'POST',
                     headers: headers,
                     body: body
-                }).then((response) => response.json()).then((responseJson) => {
+                }).then((response) => {
+                    if(response.status !==200){
+                        throw response.status + ': ' + response;
+                    }
+                    return response.json();
+                }).then((responseJson) => {
                     resolve(responseJson);
                 }).catch((error) => {
                     console.log(url, headers, body);
