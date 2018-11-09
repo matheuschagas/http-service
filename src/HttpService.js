@@ -5,11 +5,17 @@ export class HttpService {
 
     static env = ENVS.PRODUCTION;
 
+    static debug = false;
+
     static defaultApiKey = '';
 
     static apis = {};
 
     static defaultHeaders = {};
+
+    static headers = {};
+
+    static successCodes = [200, 201, 202, 203, 204, 205, 206, 207];
 
     static setApi(key, url, env = ENVS.PRODUCTION) {
         let urlEnv = {
@@ -61,30 +67,48 @@ export class HttpService {
         return {key, value};
     }
 
+    static async createError(response){
+        let error;
+        try{
+            let resp = await response.json();
+            error = {...resp};
+            console.log(error);
+        }catch(e){
+            error = {status: response.status, error: response._bodyText};
+            console.log(e, error);
+        }
+        return error;
+    }
+
     static get(endpoint, params = [], apiKey = HttpService.apis[0][0], token = null){
         return new Promise((resolve, reject)=> {
             try {
                 let url = HttpService.getApi(apiKey) + endpoint + extractGetParams(params, token);
                 let headers = {
                     ...HttpService.defaultHeaders,
+                    ...HttpService.headers,
                 };
                 if (token !== null) {
                     headers.Authorization = token;
                 }
-                fetch(url, {headers: headers}).then((response) => {
-                    if(response.status !==200){
-                        throw response.status + ': ' + response;
+                fetch(url, {headers: headers}).then(async (response) => {
+                    HttpService.headers = {};
+                    if(!HttpService.successCodes.includes(response.status)){
+                        throw await HttpService.createError(response);
                     }
-                    console.log(response)
+                    if(HttpService.debug){
+                        console.log(response)
+                    }
                     return response.json();
                 }).then(responseJson => {
                     resolve(responseJson);
                 }).catch((error) => {
+                    HttpService.headers = {};
                     console.log(url, headers);
-                    throw error;
+                    reject(error);
                 });
             } catch (e) {
-                console.log(e);
+                HttpService.headers = {};
                 reject(e);
             }
         });
@@ -93,11 +117,10 @@ export class HttpService {
     static post(endpoint, params = {}, apiKey = HttpService.apis[0][0], token = null) {
         return new Promise((resolve, reject)=>{
             try {
-                let url = toAPI?(this.apiURL + endpoint):endpoint;
+                let url = HttpService.getApi(apiKey) + endpoint;
                 let headers = {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
                     ...HttpService.defaultHeaders,
+                    ...HttpService.headers,
                 };
                 if(token !== null) {
                     headers.Authorization = token;
@@ -107,18 +130,24 @@ export class HttpService {
                     method: 'POST',
                     headers: headers,
                     body: body
-                }).then((response) => {
-                    if(response.status !==200){
-                        throw response.status + ': ' + response;
+                }).then(async (response) => {
+                    HttpService.headers = {};
+                    if(!HttpService.successCodes.includes(response.status)){
+                        throw await HttpService.createError(response);
                     }
-                    return response.json();
+                    if(HttpService.debug){
+                        console.log(response)
+                    }
+                    return response._bodyText !== ""?response.json(): true;
                 }).then((responseJson) => {
                     resolve(responseJson);
                 }).catch((error) => {
-                    console.log(url, headers, body);
-                    throw error;
+                    HttpService.headers = {};
+                    console.log(url, headers, body, error);
+                    reject(error);
                 });
             }catch(e){
+                HttpService.headers = {};
                 reject(e);
             }
         });
@@ -127,11 +156,10 @@ export class HttpService {
     static patch(endpoint, params = {}, apiKey = HttpService.apis[0][0], token = null) {
         return new Promise((resolve, reject)=>{
             try {
-                let url = toAPI?(this.apiURL + endpoint):endpoint;
+                let url = HttpService.getApi(apiKey) + endpoint;
                 let headers = {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
                     ...HttpService.defaultHeaders,
+                    ...HttpService.headers,
                 };
                 if(token !== null) {
                     headers.Authorization = token;
@@ -141,13 +169,24 @@ export class HttpService {
                     method: 'PATCH',
                     headers: headers,
                     body: body
-                }).then((response) => response.json()).then((responseJson) => {
+                }).then(async (response) => {
+                    HttpService.headers = {};
+                    if(!HttpService.successCodes.includes(response.status)){
+                        throw await HttpService.createError(response);
+                    }
+                    if(HttpService.debug){
+                        console.log(response)
+                    }
+                    return response._bodyText !== ""?response.json(): true;
+                }).then((responseJson) => {
                     resolve(responseJson);
                 }).catch((error) => {
-                    console.log(url, headers, body);
-                    throw error;
+                    HttpService.headers = {};
+                    console.log(url, headers, body, error);
+                    reject(error);
                 });
             }catch(e){
+                HttpService.headers = {};
                 reject(e);
             }
         });
@@ -156,11 +195,10 @@ export class HttpService {
     static put(endpoint, params = {}, apiKey = HttpService.apis[0][0], token = null) {
         return new Promise((resolve, reject)=>{
             try {
-                let url = toAPI?(this.apiURL + endpoint):endpoint;
+                let url = HttpService.getApi(apiKey) + endpoint;
                 let headers = {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
                     ...HttpService.defaultHeaders,
+                    ...HttpService.headers,
                 };
                 if(token !== null) {
                     headers.Authorization = token;
@@ -170,13 +208,24 @@ export class HttpService {
                     method: 'PUT',
                     headers: headers,
                     body: body
-                }).then((response) => response.json()).then((responseJson) => {
+                }).then(async (response) => {
+                    HttpService.headers = {};
+                    if(!HttpService.successCodes.includes(response.status)){
+                        throw await HttpService.createError(response);
+                    }
+                    if(HttpService.debug){
+                        console.log(response)
+                    }
+                    return response._bodyText !== ""?response.json(): true;
+                }).then((responseJson) => {
                     resolve(responseJson);
                 }).catch((error) => {
-                    console.log(url, headers, body);
-                    throw error;
+                    HttpService.headers = {};
+                    console.log(url, headers, body, error);
+                    reject(error);
                 });
             }catch(e){
+                HttpService.headers = {};
                 reject(e);
             }
         });
@@ -185,11 +234,10 @@ export class HttpService {
     static delete(endpoint, params = {}, apiKey = HttpService.apis[0][0], token = null) {
         return new Promise((resolve, reject)=>{
             try {
-                let url = toAPI?(this.apiURL + endpoint):endpoint;
+                let url = HttpService.getApi(apiKey) + endpoint;
                 let headers = {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
                     ...HttpService.defaultHeaders,
+                    ...HttpService.headers,
                 };
                 if(token !== null) {
                     headers.Authorization = token;
@@ -199,13 +247,24 @@ export class HttpService {
                     method: 'DELETE',
                     headers: headers,
                     body: body
-                }).then((response) => response.json()).then((responseJson) => {
+                }).then(async (response) => {
+                    HttpService.headers = {};
+                    if(!HttpService.successCodes.includes(response.status)){
+                        throw await HttpService.createError(response);
+                    }
+                    if(HttpService.debug){
+                        console.log(response)
+                    }
+                    return response._bodyText !== ""?response.json(): true;
+                }).then((responseJson) => {
                     resolve(responseJson);
                 }).catch((error) => {
+                    HttpService.headers = {};
                     console.log(url, headers, body);
-                    throw error;
+                    reject(error);
                 });
             }catch(e){
+                HttpService.headers = {};
                 reject(e);
             }
         });
