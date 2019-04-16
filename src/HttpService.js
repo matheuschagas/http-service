@@ -138,7 +138,8 @@ export class HttpService {
                     if(HttpService.debug){
                         console.log(response)
                     }
-                    return response._bodyText !== ""?response.json(): true;
+                    let res = await response.text();
+                    return res !== "" ? JSON.parse(res) : true;
                 }).then((responseJson) => {
                     resolve(responseJson);
                 }).catch((error) => {
