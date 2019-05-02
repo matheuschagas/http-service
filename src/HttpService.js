@@ -81,7 +81,7 @@ export class HttpService {
     }
 
     static get(endpoint, params = [], apiKey = HttpService.apis[0][0], token = null){
-        return new Promise((resolve, reject)=> {
+        return new Promise(async (resolve, reject)=> {
             try {
                 let url = HttpService.getApi(apiKey) + endpoint + extractGetParams(params, token);
                 let headers = {
@@ -99,7 +99,8 @@ export class HttpService {
                     if(HttpService.debug){
                         console.log(response)
                     }
-                    return response.json();
+                    let res = await response.text();
+                    return res !== "" ? JSON.parse(res) : true;
                 }).then(responseJson => {
                     resolve(responseJson);
                 }).catch((error) => {
@@ -115,7 +116,7 @@ export class HttpService {
     }
 
     static post(endpoint, params = {}, apiKey = HttpService.apis[0][0], token = null) {
-        return new Promise((resolve, reject)=>{
+        return new Promise(async (resolve, reject)=>{
             try {
                 let url = HttpService.getApi(apiKey) + endpoint;
                 let headers = {
@@ -155,7 +156,7 @@ export class HttpService {
     }
 
     static patch(endpoint, params = {}, apiKey = HttpService.apis[0][0], token = null) {
-        return new Promise((resolve, reject)=>{
+        return new Promise(async (resolve, reject)=>{
             try {
                 let url = HttpService.getApi(apiKey) + endpoint;
                 let headers = {
@@ -178,7 +179,8 @@ export class HttpService {
                     if(HttpService.debug){
                         console.log(response)
                     }
-                    return response._bodyText !== ""?response.json(): true;
+                    let res = await response.text();
+                    return res !== "" ? JSON.parse(res) : true;
                 }).then((responseJson) => {
                     resolve(responseJson);
                 }).catch((error) => {
@@ -194,7 +196,7 @@ export class HttpService {
     }
 
     static put(endpoint, params = {}, apiKey = HttpService.apis[0][0], token = null) {
-        return new Promise((resolve, reject)=>{
+        return new Promise(async (resolve, reject)=>{
             try {
                 let url = HttpService.getApi(apiKey) + endpoint;
                 let headers = {
@@ -217,7 +219,8 @@ export class HttpService {
                     if(HttpService.debug){
                         console.log(response)
                     }
-                    return response._bodyText !== ""?response.json(): true;
+                    let res = await response.text();
+                    return res !== "" ? JSON.parse(res) : true;
                 }).then((responseJson) => {
                     resolve(responseJson);
                 }).catch((error) => {
@@ -233,7 +236,7 @@ export class HttpService {
     }
 
     static delete(endpoint, params = {}, apiKey = HttpService.apis[0][0], token = null) {
-        return new Promise((resolve, reject)=>{
+        return new Promise(async (resolve, reject)=>{
             try {
                 let url = HttpService.getApi(apiKey) + endpoint;
                 let headers = {
@@ -256,7 +259,8 @@ export class HttpService {
                     if(HttpService.debug){
                         console.log(response)
                     }
-                    return response._bodyText !== ""?response.json(): true;
+                    let res = await response.text();
+                    return res !== "" ? JSON.parse(res) : true;
                 }).then((responseJson) => {
                     resolve(responseJson);
                 }).catch((error) => {
